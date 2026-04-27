@@ -4,7 +4,10 @@ describe('generateDeliveryReceipt', () => {
   const baseParams = {
     accountName: 'The Rail',
     orderNumber: 'OF-1042',
-    deliveryDate: new Date('2026-04-30T00:00:00Z'),
+    // Local-time Date constructor — always renders as 4/30/2026 via
+    // toLocaleDateString regardless of the test runner's timezone (CI is UTC,
+    // local dev may be EDT/PDT — both interpret this the same way).
+    deliveryDate: new Date(2026, 3, 30),
     rep: 'Jake Thornton',
     lines: [
       {

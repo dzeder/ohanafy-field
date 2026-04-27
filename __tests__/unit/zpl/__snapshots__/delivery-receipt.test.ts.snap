@@ -9,7 +9,7 @@ exports[`generateDeliveryReceipt matches snapshot 1`] = `
 ^FO30,75^A0N,24,24^FDDelivery Receipt^FS
 ^FO30,130^A0N,28,28^FDThe Rail^FS
 ^FO30,170^A0N,22,22^FDOrder: OF-1042^FS
-^FO30,200^A0N,22,22^FDDate: 4/29/2026^FS
+^FO30,200^A0N,22,22^FDDate: 4/30/2026^FS
 ^FO30,230^A0N,22,22^FDRep: Jake Thornton^FS
 ^FO30,275^GB580,2,2^FS
 ^FO30,285^A0N,22,22^FDQty  Item                     Total^FS
