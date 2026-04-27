@@ -1,0 +1,50 @@
+name: ci
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install deps
+        run: npm ci --legacy-peer-deps
+
+      - name: TypeScript check
+        run: npx tsc --noEmit
+
+      - name: Lint
+        run: npx eslint src/ app/ --ext .ts,.tsx --max-warnings 0
+        continue-on-error: false
+
+      - name: Tests
+        run: npx jest --coverage --maxWorkers=2
+
+  pmd:
+    runs-on: ubuntu-latest
+    if: hashFiles('packages/sfdx-package/**/*.cls') != ''
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install PMD
+        run: |
+          PMD_VERSION=7.7.0
+          curl -L -o pmd.zip "https://github.com/pmd/pmd/releases/download/pmd_releases/${PMD_VERSION}/pmd-dist-${PMD_VERSION}-bin.zip"
+          unzip -q pmd.zip
+          mv pmd-bin-${PMD_VERSION} pmd
+          echo "${PWD}/pmd/bin" >> $GITHUB_PATH
+      - name: Run PMD against Apex
+        run: |
+          pmd check \
+            --dir packages/sfdx-package/force-app/main/default/classes/ \
+            --rulesets scripts/pmd-ruleset.xml \
+            --format text \
+            --fail-on-violation
