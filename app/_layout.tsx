@@ -7,7 +7,10 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 
 import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
+import { database } from '@/db';
+import { seedDatabase } from '@/db/seeder';
 import { initPostHog, initSentry } from '@/observability';
+import { startSyncEngine } from '@/sync/engine';
 
 initSentry();
 
@@ -20,11 +23,25 @@ const queryClient = new QueryClient({
   },
 });
 
+const useSeed = process.env.EXPO_PUBLIC_USE_SEED_DATA === 'true';
+
 export default function RootLayout(): React.ReactNode {
   useEffect(() => {
     // Defer non-critical init off the launch path
     const id = setTimeout(() => initPostHog(), 0);
-    return () => clearTimeout(id);
+
+    // Seed demo data on first run if enabled (no-op when DB already has rows)
+    if (useSeed) {
+      seedDatabase(database, { repId: 'demo-rep' }).catch(() => undefined);
+    }
+
+    // Auto-flush sync queue on reconnect
+    const stopSync = startSyncEngine();
+
+    return () => {
+      clearTimeout(id);
+      stopSync();
+    };
   }, []);
 
   return (
