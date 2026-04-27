@@ -1,12 +1,17 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Pressable, Text, TextInput, View } from 'react-native';
 
 import { useAuthStore } from '@/auth/store';
+import { cleanNote } from '@/ai/agents';
 import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
+import { TranscriptDisplay } from '@/components/voice/TranscriptDisplay';
+import { VoiceButton } from '@/components/voice/VoiceButton';
 import { database } from '@/db';
 import { logVisit } from '@/db/repositories/visits';
 import { enqueue } from '@/db/repositories/sync-queue';
+import { useVoiceCommand } from '@/hooks/useVoiceCommand';
+import { useVoiceStore } from '@/store/voice-store';
 
 export default function NewVisit(): React.ReactNode {
   const { accountId, accountSfId } = useLocalSearchParams<{
@@ -16,6 +21,18 @@ export default function NewVisit(): React.ReactNode {
   const repId = useAuthStore((s) => s.userId) ?? 'demo-rep';
   const [note, setNote] = useState('');
   const [busy, setBusy] = useState(false);
+  const action = useVoiceStore((s) => s.action);
+  const reset = useVoiceStore((s) => s.reset);
+  const { toggle } = useVoiceCommand({ repId });
+
+  // When the agent returns a LOG_NOTE, pre-fill the input with the cleaned text
+  useEffect(() => {
+    if (action?.type === 'LOG_NOTE') {
+      const { cleanedNote } = cleanNote(action.rawTranscript);
+      setNote((prev) => (prev.trim() ? `${prev.trim()} ${cleanedNote}` : cleanedNote));
+      reset();
+    }
+  }, [action, reset]);
 
   const handleSave = async (): Promise<void> => {
     if (!accountId || !accountSfId || !note.trim()) return;
@@ -58,8 +75,8 @@ export default function NewVisit(): React.ReactNode {
         </Text>
         <TextInput
           accessibilityLabel="Visit note"
-          accessibilityHint="Type the visit note here. Day 3 adds voice dictation."
-          placeholder="What did you talk about? Any tap issues, new menu items, sell-through concerns…"
+          accessibilityHint="Type the visit note or tap the mic to dictate."
+          placeholder="What did you talk about? Tap the mic to dictate, or type."
           placeholderTextColor="#9a9a9a"
           value={note}
           onChangeText={setNote}
@@ -67,6 +84,15 @@ export default function NewVisit(): React.ReactNode {
           textAlignVertical="top"
           className="min-h-[160px] rounded-2xl bg-ohanafy-cork p-4 text-base text-ohanafy-ink dark:bg-ohanafy-dark-elevated dark:text-ohanafy-dark-text"
         />
+
+        <TranscriptDisplay />
+
+        <View className="mt-4 flex-row items-center justify-between">
+          <Text className="flex-1 text-xs text-ohanafy-muted dark:text-ohanafy-dark-muted">
+            Tap the mic and speak. We&apos;ll clean filler words automatically.
+          </Text>
+          <VoiceButton onPress={toggle} />
+        </View>
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Save visit"

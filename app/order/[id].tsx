@@ -2,9 +2,14 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 
+import { useAuthStore } from '@/auth/store';
+import { captureFeedback } from '@/ai/memory';
 import { LineItem } from '@/components/order/LineItem';
 import { ProductPicker } from '@/components/order/ProductPicker';
 import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
+import { CommandFeedback } from '@/components/voice/CommandFeedback';
+import { TranscriptDisplay } from '@/components/voice/TranscriptDisplay';
+import { VoiceButton } from '@/components/voice/VoiceButton';
 import { database } from '@/db';
 import {
   addLineToOrder,
@@ -13,11 +18,17 @@ import {
 } from '@/db/repositories/orders';
 import type { Product } from '@/db/models/Product';
 import { useOrder } from '@/hooks/useOrder';
+import { useVoiceCommand } from '@/hooks/useVoiceCommand';
+import { useVoiceStore } from '@/store/voice-store';
 
 export default function OrderEntry(): React.ReactNode {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { order, lines, products, loading } = useOrder(id);
   const [showPicker, setShowPicker] = useState(false);
+  const repId = useAuthStore((s) => s.userId) ?? 'demo-rep';
+  const action = useVoiceStore((s) => s.action);
+  const reset = useVoiceStore((s) => s.reset);
+  const { toggle } = useVoiceCommand({ repId });
 
   const handleAdd = async (product: Product): Promise<void> => {
     if (!id) return;
@@ -45,6 +56,49 @@ export default function OrderEntry(): React.ReactNode {
 
   const handleConfirm = (): void => {
     if (id) router.push(`/order/${id}/confirm`);
+  };
+
+  const handleVoiceAccept = async (): Promise<void> => {
+    if (!id || !action || action.type !== 'ADD_TO_ORDER') {
+      reset();
+      return;
+    }
+    for (const item of action.items) {
+      const matchingProduct = products.find((p) => p.sfId === item.productSfId);
+      if (!matchingProduct) continue;
+      const existing = lines.find((l) => l.productId === matchingProduct.id);
+      if (existing) {
+        await updateLineQuantity(
+          database,
+          existing.id,
+          existing.quantity + item.quantity
+        );
+      } else {
+        await addLineToOrder(database, id, {
+          product: matchingProduct,
+          quantity: item.quantity,
+        });
+      }
+    }
+    await captureFeedback(database, {
+      repId,
+      eventType: 'command_accepted',
+      aiOutput: { action },
+      context: { orderId: id, lineCount: lines.length },
+    });
+    reset();
+  };
+
+  const handleVoiceReject = async (): Promise<void> => {
+    if (action) {
+      await captureFeedback(database, {
+        repId,
+        eventType: 'command_rejected',
+        aiOutput: { action },
+        context: { orderId: id },
+      });
+    }
+    reset();
   };
 
   if (loading || !order) {
@@ -123,8 +177,10 @@ export default function OrderEntry(): React.ReactNode {
           </View>
         )}
 
+        <TranscriptDisplay />
+
         <View className="border-t border-ohanafy-cork bg-ohanafy-paper px-4 pb-8 pt-3 dark:border-ohanafy-dark-elevated dark:bg-ohanafy-dark-surface">
-          <View className="flex-row gap-3">
+          <View className="flex-row items-center gap-3">
             <Pressable
               accessibilityRole="button"
               accessibilityLabel={showPicker ? 'Hide product picker' : 'Add item'}
@@ -157,8 +213,18 @@ export default function OrderEntry(): React.ReactNode {
                 Review
               </Text>
             </Pressable>
+            <VoiceButton onPress={toggle} />
           </View>
         </View>
+
+        {action ? (
+          <CommandFeedback
+            action={action}
+            onAccept={handleVoiceAccept}
+            onEdit={() => setShowPicker(true)}
+            onReject={handleVoiceReject}
+          />
+        ) : null}
       </View>
     </ErrorBoundary>
   );
