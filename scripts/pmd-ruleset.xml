@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ruleset name="Ohanafy Field Security Review Ruleset"
+         xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0
+           http://pmd.sourceforge.net/ruleset_2_0_0.xsd">
+
+  <description>
+    Apex PMD ruleset aligned to Salesforce AppExchange Security Review requirements.
+    Zero violations required before security review submission.
+    This ruleset is also enforced in CI on every push.
+  </description>
+
+  <!-- ═══════════════════════════════════════════
+       SECURITY — Critical. Rejection guaranteed.
+       ═══════════════════════════════════════════ -->
+
+  <!-- Sharing model not declared -->
+  <rule ref="category/apex/security.xml/ApexSharingViolations">
+    <priority>1</priority>
+  </rule>
+
+  <!-- SOQL injection via string concatenation -->
+  <rule ref="category/apex/security.xml/ApexSOQLInjection">
+    <priority>1</priority>
+  </rule>
+
+  <!-- XSS from URL parameters -->
+  <rule ref="category/apex/security.xml/ApexXSSFromURLParam">
+    <priority>1</priority>
+  </rule>
+
+  <!-- XSS from escape-unsafe methods -->
+  <rule ref="category/apex/security.xml/ApexXSSFromEscapeFalse">
+    <priority>1</priority>
+  </rule>
+
+  <!-- CRUD/FLS violations -->
+  <rule ref="category/apex/security.xml/ApexCRUDViolation">
+    <priority>1</priority>
+  </rule>
+
+  <!-- Open redirect vulnerability -->
+  <rule ref="category/apex/security.xml/ApexOpenRedirect">
+    <priority>1</priority>
+  </rule>
+
+  <!-- HTTP callout (not HTTPS) -->
+  <rule ref="category/apex/security.xml/ApexInsecureEndpoint">
+    <priority>1</priority>
+  </rule>
+
+  <!-- Dangerous permissions in Apex -->
+  <rule ref="category/apex/security.xml/ApexDangerousMethods">
+    <priority>1</priority>
+  </rule>
+
+  <!-- ═══════════════════════════════════════════
+       PERFORMANCE — Flagged in security review.
+       ═══════════════════════════════════════════ -->
+
+  <!-- SOQL inside for loop (governor limit risk) -->
+  <rule ref="category/apex/performance.xml/AvoidSoqlInLoops">
+    <priority>1</priority>
+  </rule>
+
+  <!-- DML inside for loop -->
+  <rule ref="category/apex/performance.xml/AvoidDmlStatementsInLoops">
+    <priority>1</priority>
+  </rule>
+
+  <!-- SOSL inside for loop -->
+  <rule ref="category/apex/performance.xml/AvoidSoslInLoops">
+    <priority>1</priority>
+  </rule>
+
+  <!-- ═══════════════════════════════════════════
+       ERROR HANDLING — Required for good review.
+       ═══════════════════════════════════════════ -->
+
+  <!-- Empty catch blocks -->
+  <rule ref="category/apex/errorprone.xml/EmptyCatchBlock">
+    <priority>2</priority>
+  </rule>
+
+  <!-- Hardcoded Salesforce IDs -->
+  <rule ref="category/apex/errorprone.xml/AvoidHardcodingId">
+    <priority>2</priority>
+  </rule>
+
+  <!-- NullPointerException risks -->
+  <rule ref="category/apex/errorprone.xml/ApexCSRF">
+    <priority>2</priority>
+  </rule>
+
+  <!-- ═══════════════════════════════════════════
+       BEST PRACTICES — Advisory but improve score.
+       ═══════════════════════════════════════════ -->
+
+  <!-- Avoid global modifier unless required -->
+  <rule ref="category/apex/bestpractices.xml/AvoidGlobalModifier">
+    <priority>3</priority>
+  </rule>
+
+  <!-- System.debug should use LoggingLevel -->
+  <rule ref="category/apex/bestpractices.xml/DebugsShouldUseLoggingLevel">
+    <priority>3</priority>
+  </rule>
+
+  <!-- Unused local variables -->
+  <rule ref="category/apex/bestpractices.xml/UnusedLocalVariable">
+    <priority>3</priority>
+  </rule>
+
+</ruleset>

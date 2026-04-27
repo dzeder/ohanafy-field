@@ -1,0 +1,24 @@
+{
+  "$schema": "https://anthropic.com/claude-code/settings.schema.json",
+  "model": "claude-opus-4-5",
+  "tools": {
+    "enabled": ["bash", "view", "str_replace", "create_file"]
+  },
+  "hooks": {
+    "postCommit":  ".claude/hooks/post-commit-log.sh",
+    "prePush":     ".claude/hooks/pre-push-quality-gate.sh",
+    "preMerge":    ".claude/hooks/pre-merge-checklist.sh"
+  },
+  "contextFiles": [
+    "CLAUDE.md",
+    "OHANAFY-FIELD-PRODUCT-BIBLE.md"
+  ],
+  "ignorePatterns": [
+    "references/**",
+    "node_modules/**",
+    ".expo/**",
+    "android/**",
+    "ios/**",
+    "*.generated.*"
+  ]
+}
