@@ -3204,35 +3204,74 @@ Append new ADRs here as decisions are made. Never modify or delete existing ADRs
 
 Fill in at end of each day. Be honest. If a target was missed, say why.
 
-### Day 1 Retro
-- Targets completed: [ ]
-- Targets missed: [ ]
-- Blockers encountered:
-- What Claude Code did well:
-- Where Claude Code needed correction:
-- Decisions made (add to §24 if architectural):
-- Tomorrow's first two targets:
+### Day 1 Retro — Foundation (PR #17)
+- Targets completed: [x] Expo project + NativeWind + Ohanafy brand tokens · [x] WatermelonDB schema (10 tables incl. permissions) + 10 model classes · [x] Permission system (TDD, 27 tests) — types, matrix, fixture loader, Zustand store, PermissionGate, no-permission screen · [x] SF OAuth PKCE + token manager + biometric lock · [x] Role-driven navigation (Field Sales Rep tabs wired, others stubbed) · [x] ErrorBoundary + Sentry + PostHog (deferred init) · [x] EAS profiles + GitHub Actions CI · [x] CLAUDE.md committed
+- Targets missed: none
+- Blockers encountered: WatermelonDB's `Model.syncStatus` is a built-in accessor; my `@field('sync_status') syncStatus` shadowed it. Renamed JS prop to `sfSyncStatus` (column stays `sync_status` per Bible spec). Caught by `tsc`, fixed in 2 edits.
+- What Claude Code did well: TDD pattern landed cleanly — wrote failing tests for `loadUserPermissions`, `usePermissionStore`, and `PermissionGate` first, then implementation. Permission matrix design captured the user's "Daniel = admin who can act as any role" requirement on first try.
+- Where Claude Code needed correction: nothing significant.
+- Decisions made: AppAdmin is special — grants all functional permissions in the matrix so multi-role users can switch into any functional role. Fixture loader is the Day 1–3 path; Day 4 swaps to live SF Permission Sets.
+- Tomorrow's first two targets: account list with FlashList; sync engine.
 
-### Day 2 Retro
-(same format)
+### Day 2 Retro — Core Features (PR #19)
+- Targets completed: [x] Demo seed (5 BHM accounts + 10 products + visits + orders) · [x] Repositories (accounts, orders, visits, sync-queue) · [x] NetInfo offline status hook + OfflineBanner · [x] LoadingSkeleton + EmptyState + SyncStatusBar · [x] Account list (FlashList, search, Needs Attention filter) · [x] Account detail (info, last order, visit history) · [x] Order entry with stepper + ProductPicker · [x] Order confirm with `pending_sync` + queued CREATE_ORDER · [x] Visit log · [x] Sync engine (sf-client with 401 refresh-retry, queue-processor, NetInfo auto-flush)
+- Targets missed: real WDB integration tests with in-memory adapter. Loki/SQLite-in-memory blocked by jest env; queue-processor uses a hand-rolled fake DB instead. Validates business logic; real integration on Day 5/6 device runs.
+- Blockers encountered: none.
+- What Claude Code did well: extracted `useAccountList` and `useOrder` hooks early so the screens stayed thin. Sync engine's single-flight `inFlight` guard was a small thing that prevented thrash on rapid reconnects.
+- Where Claude Code needed correction: none.
+- Decisions made: Visit notes use last-write-wins on sync (Bible §7.4); orders created offline get a fresh local id and are flagged `created_offline=true` for managers' review.
+- Tomorrow's first two targets: voice state machine; AI tools with TDD.
 
-### Day 3 Retro
-(same format)
+### Day 3 Retro — Voice + AI (PR #20)
+- Targets completed: [x] @react-native-voice/voice integration · [x] Zustand voice state machine (IDLE → LISTENING → PROCESSING → CONFIRMING) · [x] Anthropic SDK client · [x] 3 AI tools with 18 fixture tests (interpret-order, interpret-note, get-account-intel) · [x] 3 agents (command, visit-prep, note) · [x] Memories repository + writer + retriever · [x] VoiceButton with mic pulse · [x] TranscriptDisplay + CommandFeedback · [x] InsightBanner with 3-sec non-blocking AI · [x] FeedbackCapture component · [x] Wired voice into order entry + visit log
+- Targets missed: device voice testing (CI is JS-only).
+- Blockers encountered: Anthropic SDK detects environment and refuses to run without `dangerouslyAllowBrowser: true` in RN. Fix was one flag.
+- What Claude Code did well: enforced the "AI never invents data" rule at every tool boundary — `interpretOrder` returns `confidence: 'low'` for unknown products, never fabricates SKUs. Test fixture covers the unknown-product case explicitly.
+- Where Claude Code needed correction: the visit-prep agent originally let the LLM override the deterministic urgency. Caught it on review and locked urgency to the deterministic value; LLM only customizes the headline copy.
+- Decisions made: dev mode reads `EXPO_PUBLIC_ANTHROPIC_API_KEY` from env; production fetches from `AI_Config__mdt` post-auth and stores in SecureStore. Rationale: avoids manually rotating keys per device build during the sprint.
+- Tomorrow's first two targets: ZPL templates with snapshot tests; learning agent.
 
-### Day 4 Retro
-(same format)
+### Day 4 Retro — ZPL + Learning + SFDX (PR #21)
+- Targets completed: [x] 3 ZPL templates (shelf talker, product card, delivery receipt) with 22 tests + 3 snapshots · [x] Labelary preview client + offline raw-ZPL fallback · [x] Zebra printer wrapper (TS stub for now; native bridge v1.1) · [x] Label select + preview screens · [x] Learning agent with confidence model (≥4=0.9, 2-3=0.7, 1=0.5) and 5 tests · [x] AI Memories management screen · [x] expo-notifications setup + Android channel · [x] SFDX managed package skeleton with 6 custom objects (Roles §12) + Connected App migrated
+- Targets missed: native Zebra Link-OS bridge (needs iOS/Android dev build with the Zebra SDK); Apex classes (Day 5+).
+- Blockers encountered: delivery receipt snapshot drifted between local (US TZ) and CI (UTC) — `new Date('...Z').toLocaleDateString()` is timezone-dependent. Fixed by using `new Date(2026, 3, 30)` (local-time constructor); verified stable in TZ=UTC and TZ=America/Los_Angeles.
+- What Claude Code did well: the printer wrapper stub kept every call site stable so the rest of Day 4 (label flow + history) worked without touching the native module.
+- Where Claude Code needed correction: initially wrote a fragile in-memory adapter for sync-engine tests; user feedback was to use simple mocks. Fake DB pattern from Day 2 worked here too.
+- Decisions made: Apex classes deferred to Day 5/6 (PMD ruleset is in CI but no `*.cls` files exist yet — the conditional-skip in CI handles this). The native Zebra bridge is a clean swap when device build lands.
+- Tomorrow's first two targets: 11 Maestro flows; user guide.
 
-### Day 5 Retro
-(same format)
+### Day 5 Retro — Tests + Onboarding + Help (PR #22)
+- Targets completed: [x] User guide content (7 sections from Appendix F, offline) · [x] User guide screens with case-insensitive search · [x] Coach marks (SecureStore-backed dismissal) · [x] 5-step onboarding wizard · [x] 11 Maestro E2E flows (6 Bible + 5 Roles §12) with cross-platform offline helpers · [x] Dark mode audit (no gaps — `dark:` variants from Day 1)
+- Targets missed: jest `coverageThreshold` enforcement (deferred to Day 7); Maestro `debug-*` testID hooks in app code (the YAML flows are written; the in-app shims need device build).
+- Blockers encountered: none.
+- What Claude Code did well: 7-section user guide content went straight from Bible Appendix F to a typed array — clean export of the content layer means future translations are a one-file diff.
+- Where Claude Code needed correction: initial guide search returned everything containing "the"; capped per-section hits to 3.
+- Decisions made: coach marks use SecureStore not AsyncStorage to align with the existing token-storage pattern; tradeoff is slightly heavier API but consistent with the rest of the app.
+- Tomorrow's first two targets: useTabletLayout hook + iPad split-pane; role-driven nav for the other 5 roles.
 
-### Day 6 Retro
-(same format — also run the full Preamble checklist tonight)
+### Day 6 Retro — Tablet + A11y + Performance (PR #23)
+- Targets completed: [x] useTabletLayout hook (≥768pt thresholds) · [x] Tablet split-pane account list/detail with no-navigation selection · [x] AccountDetailView extracted as reusable component · [x] AccountCard `accessibilityState.selected` for VoiceOver · [x] role-nav-config.ts as single source of truth · [x] 12 placeholder tab routes (sales manager, driver, driver manager, warehouse worker, warehouse manager) using shared RoleTabPlaceholder · [x] Tabs layout uses `href: null` to hide per active role · [x] A11y spot-check (every Pressable has labels/hints, lists count items)
+- Targets missed: real-device performance measurements (cold launch < 2.5s, 60fps scroll, peak memory < 150MB) — needs iPhone SE 3 + Instruments. Code-level perf is in place (FlashList everywhere, React.memo with custom comparators, useCallback on every onPress, reactive WDB observables).
+- Blockers encountered: none.
+- What Claude Code did well: the role-nav-config + `href: null` pattern is exactly the Bible §15 contract — switching roles via the RoleSwitcher re-evaluates and re-renders the tab bar live. Manual test on web simulator confirmed.
+- Where Claude Code needed correction: initially planned to NOT extract AccountDetailView and just duplicate logic in the tablet split-pane — caught the duplication and refactored.
+- Decisions made: AppAdmin has no own tab set; admins switch into a functional role to use the mobile app (admin console is a separate Lightning app on Salesforce).
+- Tomorrow's first two targets: README + CHANGELOG; customer admin onboarding guide.
 
-### Day 7 Retro
-- Submitted to App Store: Y/N
-- Submitted to Google Play: Y/N
+### Day 7 Retro — Documentation + Submission (this PR)
+- Submitted to App Store: **Pending** — production EAS build, App Store metadata, and screenshots require manual action (tracked in GitHub issues #1–#13)
+- Submitted to Google Play: **Pending** — same blockers
 - What still needs work post-launch:
-- Version 1.0.1 backlog (list 3 highest priority items):
+  - Native Zebra Link-OS bridge (replaces `src/zpl/printer.ts` stub)
+  - Real implementations of the 5 non-Sales-Rep tab sets (currently `RoleTabPlaceholder`)
+  - Apex permission-set assignment helpers + admin console controllers
+  - Maestro `debug-*` testID hooks (the YAML flows are spec'd; in-app shims gated on `MAESTRO_TEST_MODE` need to land before flows can actually run)
+  - Anthropic key swap from `EXPO_PUBLIC_ANTHROPIC_API_KEY` env to `AI_Config__mdt` SF Custom Metadata + SecureStore
+  - Real-device performance measurements per Bible §9 Day 6 targets
+- Version 1.0.1 backlog (3 highest priority):
+  1. **Native Zebra bridge** — without it, reps can't actually print; the stub is a documentation/demo path. Single highest-impact post-launch item.
+  2. **Sales Manager + Driver tab sets** — pilot will reveal whether these need to ship before the Field Sales Rep is widely deployed (drivers using the same accounts may surface ordering needs).
+  3. **Production AI key path** — moving the Anthropic key to SF Custom Metadata removes the dev-only `EXPO_PUBLIC_ANTHROPIC_API_KEY` from production bundles, which is required for security review submission.
 
 ---
 
