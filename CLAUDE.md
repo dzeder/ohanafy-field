@@ -46,6 +46,7 @@ The Security Review doc constrains every line of Apex. Before writing any .cls f
 9. AI never invents data. Tool handlers validate against WatermelonDB. Never against Claude's knowledge.
 10. Feature freeze is end of Day 6. Day 7 is documentation and submission only.
 11. Run /handoff at the end of every session.
+12. **Ohanafy Field uses Ohanafy's DATA MODEL, not their UX.** The Salesforce Mobile App's screens, navigation, offline behavior, and interactions are explicitly NOT a reference. Our wedge is offline-first, voice-driven, AI-assisted, fast — none of which the Salesforce app does well. When designing a new screen or interaction, derive it from the Bible's UX spec (§4 feature inventory, §19 onboarding, Appendix G), reference repos under `references/` (NativeWindUI, Shopify FlashList, etc.), and React Native conventions — never from how Salesforce Lightning or the Salesforce Mobile App does it. Repeat from `references/ohanafy/` for **structure** (objects, fields, relationships, conflict rules) — never copy a Lightning component or page layout.
 ---
 
 ## Non-negotiables (§0 of Product Bible)
