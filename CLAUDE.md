@@ -29,22 +29,23 @@ Anthropic Claude Sonnet API, Sentry, PostHog.
 
 ## Cross-doc rules
 
-The Roles doc is additive to the Product Bible. §12 of the Roles doc lists specific tasks added to Day 1 (permission system), the WatermelonDB schema (permissions table), Salesforce objects (6 new custom objects), and Maestro flows (5 new role-based E2E tests). These are not optional.
+The Roles doc is additive to the Product Bible. §12 of the Roles doc covers the permission system (Day 1 tasks), WatermelonDB additions (permissions table), and 5 role-based Maestro flows. **The "6 new custom objects" portion of §12 is superseded** — see Permanent rule #2 below.
 
-The Security Review doc constrains every line of Apex. Before writing any .cls file, the salesforce-integration agent loads §3 of the Security Review doc. PMD runs in CI on every push — zero violations required.
+The Security Review doc constrains every line of Apex. Before writing any .cls file, the salesforce-integration agent loads §3 of the Security Review doc. PMD runs in CI when any package has Apex; zero violations required.
 
 ## Permanent behavioral rules across all sessions
 
 1. Permission system before any screen. The PermissionGate component and usePermissionStore must exist before any screen component is built. Roles determine navigation structure — screens built before permissions exist will need to be rebuilt.
-2. Every Apex class has explicit sharing declaration. No exceptions. Undeclared sharing = automatic AppExchange rejection.
-3. Every @AuraEnabled method validates its inputs. Null check, size limit, type check. Every one.
-4. PMD must pass before any SFDX deploy. Run: pmd check --dir packages/sfdx-package/force-app/main/default/classes/ --rulesets scripts/pmd-ruleset.xml --format text --fail-on-violation
-5. WatermelonDB writes always inside database.write(async () => { ... }). Never outside.
-6. FlashList for every list over 10 items. Never FlatList in production.
-7. Every component has accessibilityLabel on every interactive element.
-8. AI never invents data. Tool handlers validate against WatermelonDB. Never against Claude's knowledge.
-9. Feature freeze is end of Day 6. Day 7 is documentation and submission only.
-10. Run /handoff at the end of every session.
+2. **Use the existing `ohfy__` namespace, NOT a new `ohfy_field__` namespace.** Ohanafy Field is a UI/UX layer over `OHFY-Data_Model`. Map our local data to the existing schema: `ohfy__Commitment__c` (with `Was_Created_Offline__c` + `Offline_Items__c`) for orders; standard `Activity` (Task with Type='Visit') for visit notes; `ohfy__Integration_Sync__c` / `Integration_Sync_Failure__c` for sync logs. The Bible §3.3 + Appendix D and Roles §12 originally called for new objects in `ohfy_field__`; reviewing `references/ohanafy/OHFY-Data_Model/` showed everything we need already exists. Source of truth: `src/sync/queue-processor.ts`.
+3. Every Apex class has explicit sharing declaration. No exceptions. Undeclared sharing = automatic AppExchange rejection.
+4. Every @AuraEnabled method validates its inputs. Null check, size limit, type check. Every one.
+5. PMD must pass before any SFDX deploy when an Ohanafy package contains `*.cls`. The PMD ruleset lives at `scripts/pmd-ruleset.xml`. Ohanafy Field itself ships zero Apex.
+6. WatermelonDB writes always inside database.write(async () => { ... }). Never outside.
+7. FlashList for every list over 10 items. Never FlatList in production.
+8. Every component has accessibilityLabel on every interactive element.
+9. AI never invents data. Tool handlers validate against WatermelonDB. Never against Claude's knowledge.
+10. Feature freeze is end of Day 6. Day 7 is documentation and submission only.
+11. Run /handoff at the end of every session.
 ---
 
 ## Non-negotiables (§0 of Product Bible)

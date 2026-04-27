@@ -2,6 +2,16 @@
 
 All notable changes to Ohanafy Field. Format follows [Keep a Changelog](https://keepachangelog.com).
 
+## [Unreleased]
+
+### Changed
+
+- **Sync engine now writes to `ohfy__` namespace, not a new `ohfy_field__` package.** After reviewing `OHFY-Data_Model`, found that `ohfy__Commitment__c` (with `Was_Created_Offline__c` + `Offline_Items__c` LongTextArea) was designed for exactly this use case — a Salesforce-side trigger materializes `ohfy__Commitment_Item__c` rows from the JSON. Visits now write to standard `Activity` (Task with Type=Visit), matching how `OHFY-REX-UI` references activities.
+  - Single API call per order instead of N+1 (one Commitment with serialized lines vs. an Order + per-line API calls)
+  - Deleted `packages/sfdx-package/` — the 6 custom objects from Roles §12 and the new namespace are no longer needed
+  - The Connected App XML in `scripts/sf-bootstrap/` is retained as documentation; for AppExchange distribution it would be added to `OHFY-Data_Model` or a sibling Ohanafy package on the existing `ohfy` namespace
+  - CLAUDE.md "Permanent rule #2" rewritten to reflect the new architecture
+
 ## [1.0.0] — 2026-04-27
 
 First public release. Built end-to-end in a 7-day sprint.
@@ -49,10 +59,10 @@ First public release. Built end-to-end in a 7-day sprint.
 - Lists announce item counts; loading states use `accessibilityLiveRegion`
 - Dynamic Type support — no fixed font sizes, uses NativeWind text classes throughout
 
-**Salesforce managed package (`packages/sfdx-package/`)**
-- Connected App with PKCE-required OAuth (callback `com.ohanafy.field://oauth/callback`)
-- 6 custom objects per Roles §12: `Admin_Config__mdt`, `Admin_Audit_Log__c`, `ZPL_Template__c`, `Territory_Assignment__c`, `Notification_Rule__c`, `AI_Config__mdt`
-- PMD ruleset (`scripts/pmd-ruleset.xml`) enforces AppExchange Security Review §3 — zero violations required in CI
+**Salesforce integration**
+- Connected App with PKCE-required OAuth (callback `com.ohanafy.field://oauth/callback`) — XML kept in `scripts/sf-bootstrap/` as documentation
+- Mobile sync writes to existing `ohfy__` objects (no new namespace): `ohfy__Commitment__c` for orders (with `Offline_Items__c` JSON for line items), standard `Activity` for visits
+- PMD ruleset (`scripts/pmd-ruleset.xml`) ready to enforce AppExchange Security Review §3 if Apex is added later
 
 **Observability**
 - Sentry React Native for crash + error tracking
