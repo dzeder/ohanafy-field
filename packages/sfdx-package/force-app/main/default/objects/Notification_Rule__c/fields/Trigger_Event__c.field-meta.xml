@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Trigger_Event__c</fullName>
+    <description>The event that fires this notification.</description>
+    <externalId>false</externalId>
+    <label>Trigger Event</label>
+    <required>true</required>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value><fullName>visit_reminder</fullName><default>true</default><label>Visit Reminder</label></value>
+            <value><fullName>large_order_approval</fullName><default>false</default><label>Large Order Approval</label></value>
+            <value><fullName>delivery_exception</fullName><default>false</default><label>Delivery Exception</label></value>
+            <value><fullName>inventory_alert</fullName><default>false</default><label>Inventory Alert</label></value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

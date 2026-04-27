@@ -1,4 +1,5 @@
-import { ScrollView, Text, View } from 'react-native';
+import { router } from 'expo-router';
+import { Pressable, ScrollView, Text, View } from 'react-native';
 
 import { useAuthStore } from '@/auth/store';
 import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
@@ -34,6 +35,21 @@ export default function Settings(): React.ReactNode {
         </View>
 
         <RoleSwitcher />
+
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="AI memories"
+          accessibilityHint="View and delete the patterns the AI has learned from your corrections"
+          onPress={() => router.push('/settings/memories')}
+          className="mt-4 rounded-2xl bg-ohanafy-cork p-4 active:opacity-80 dark:bg-ohanafy-dark-elevated"
+        >
+          <Text className="text-base font-bold text-ohanafy-ink dark:text-ohanafy-dark-text">
+            AI Memories
+          </Text>
+          <Text className="mt-1 text-xs text-ohanafy-muted dark:text-ohanafy-dark-muted">
+            View and manage what the AI has learned from your corrections.
+          </Text>
+        </Pressable>
       </ScrollView>
     </ErrorBoundary>
   );

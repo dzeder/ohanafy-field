@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`generateShelfTalker matches snapshot for regression detection 1`] = `
+"^XA
+^CI28
+^PW400
+^LL240
+^FO20,15^A0N,36,36^FDYellowhammer Pale Ale^FS
+^FO20,60^A0N,22,22^FDYH-PA-HB^FS
+^FO20,95^A0N,54,54^FD$142.00^FS
+^FO20,170^A0N,22,22^FDNew seasonal release^FS
+^XZ"
+`;

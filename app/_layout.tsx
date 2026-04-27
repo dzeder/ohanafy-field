@@ -9,6 +9,10 @@ import { useEffect } from 'react';
 import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
 import { database } from '@/db';
 import { seedDatabase } from '@/db/seeder';
+import {
+  configureAndroidChannel,
+  requestNotificationPermission,
+} from '@/notifications';
 import { initPostHog, initSentry } from '@/observability';
 import { startSyncEngine } from '@/sync/engine';
 
@@ -37,6 +41,9 @@ export default function RootLayout(): React.ReactNode {
 
     // Auto-flush sync queue on reconnect
     const stopSync = startSyncEngine();
+
+    // Notifications: request permission once, configure the Android channel
+    requestNotificationPermission().then(() => configureAndroidChannel());
 
     return () => {
       clearTimeout(id);
