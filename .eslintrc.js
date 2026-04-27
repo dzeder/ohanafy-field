@@ -17,6 +17,9 @@ module.exports = {
   rules: {
     'react/react-in-jsx-scope': 'off',
     'react/prop-types': 'off',
+    // Only flag chars that actually break JSX parsing — apostrophes and quotes
+    // appear constantly in real copy and don't cause issues in modern React.
+    'react/no-unescaped-entities': ['error', { forbid: ['>', '}'] }],
     'react-native/no-inline-styles': 'error',
     'react-native/no-color-literals': 'error',
     'react-native/no-raw-text': 'off',

@@ -13,7 +13,7 @@ export default function Route(): React.ReactNode {
           Route
         </Text>
         <Text className="mt-2 text-base text-ohanafy-muted dark:text-ohanafy-dark-muted">
-          Day 2 fills this in: today's planned stops with a map view.
+          Day 2 fills this in: planned stops for the day with a map view.
         </Text>
       </View>
     </ErrorBoundary>
