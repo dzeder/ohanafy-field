@@ -24,27 +24,23 @@ jobs:
 
       - name: Lint
         run: npx eslint src/ app/ --ext .ts,.tsx --max-warnings 0
-        continue-on-error: false
 
       - name: Tests
         run: npx jest --coverage --maxWorkers=2
 
-  pmd:
-    runs-on: ubuntu-latest
-    if: hashFiles('packages/sfdx-package/**/*.cls') != ''
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install PMD
+      - name: PMD (Apex) — only when packages/sfdx-package/ exists
         run: |
-          PMD_VERSION=7.7.0
-          curl -L -o pmd.zip "https://github.com/pmd/pmd/releases/download/pmd_releases/${PMD_VERSION}/pmd-dist-${PMD_VERSION}-bin.zip"
-          unzip -q pmd.zip
-          mv pmd-bin-${PMD_VERSION} pmd
-          echo "${PWD}/pmd/bin" >> $GITHUB_PATH
-      - name: Run PMD against Apex
-        run: |
-          pmd check \
-            --dir packages/sfdx-package/force-app/main/default/classes/ \
-            --rulesets scripts/pmd-ruleset.xml \
-            --format text \
-            --fail-on-violation
+          if [ -d packages/sfdx-package/force-app/main/default/classes ] && \
+             ls packages/sfdx-package/force-app/main/default/classes/*.cls >/dev/null 2>&1; then
+            echo "Apex classes detected — running PMD"
+            PMD_VERSION=7.7.0
+            curl -sL -o pmd.zip "https://github.com/pmd/pmd/releases/download/pmd_releases/${PMD_VERSION}/pmd-dist-${PMD_VERSION}-bin.zip"
+            unzip -q pmd.zip
+            ./pmd-bin-${PMD_VERSION}/bin/pmd check \
+              --dir packages/sfdx-package/force-app/main/default/classes/ \
+              --rulesets scripts/pmd-ruleset.xml \
+              --format text \
+              --fail-on-violation
+          else
+            echo "No Apex classes yet (Day 4 work) — skipping PMD"
+          fi
