@@ -1,0 +1,16 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`generateProductCard matches snapshot 1`] = `
+"^XA
+^CI28
+^PW640
+^LL480
+^FO30,25^A0N,48,48^FDYellowhammer Belgian White^FS
+^FO30,80^A0N,28,28^FDSKU: YH-BW-HB^FS
+^FO30,120^GB580,2,2^FS
+^FO30,140^A0N,72,72^FD$184.00^FS
+^FO30,230^A0N,28,28^FD• Brewed in Birmingham AL^FS
+^FO30,280^A0N,28,28^FD• 1/2 bbl keg^FS
+^FO30,330^A0N,28,28^FD• Year-round^FS
+^XZ"
+`;

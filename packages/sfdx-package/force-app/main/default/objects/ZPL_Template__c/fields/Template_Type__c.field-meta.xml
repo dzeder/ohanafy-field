@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Template_Type__c</fullName>
+    <description>Which built-in template this row overrides.</description>
+    <externalId>false</externalId>
+    <label>Template Type</label>
+    <required>true</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value><fullName>shelf_talker</fullName><default>true</default><label>Shelf Talker</label></value>
+            <value><fullName>product_card</fullName><default>false</default><label>Product Card</label></value>
+            <value><fullName>delivery_receipt</fullName><default>false</default><label>Delivery Receipt</label></value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>
