@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 
 import { useAuthStore } from '@/auth/store';
+import { InsightBanner } from '@/components/ai/InsightBanner';
 import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
 import { database } from '@/db';
 import type { Account } from '@/db/models/Account';
@@ -93,7 +94,11 @@ export default function AccountDetail(): React.ReactNode {
           {account.addressStreet}, {account.addressCity}, {account.addressState}
         </Text>
 
-        <View className="mt-6 flex-row gap-3">
+        <View className="mt-6">
+          <InsightBanner account={account} />
+        </View>
+
+        <View className="flex-row gap-3">
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="New order"
