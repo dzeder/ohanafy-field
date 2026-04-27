@@ -1,0 +1,73 @@
+{
+  "expo": {
+    "name": "Ohanafy Field",
+    "slug": "ohanafy-field",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "com.ohanafy.field",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#000000"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.ohanafy.field",
+      "buildNumber": "1",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Ohanafy Field uses the camera to scan product barcodes during visits.",
+        "NSMicrophoneUsageDescription": "Ohanafy Field uses the microphone for voice commands and dictation while you're with a customer.",
+        "NSFaceIDUsageDescription": "Ohanafy Field uses Face ID to keep your sales data secure.",
+        "NSLocationWhenInUseUsageDescription": "Ohanafy Field uses your location to show nearby accounts and route stops.",
+        "NSBluetoothAlwaysUsageDescription": "Ohanafy Field connects to your Zebra printer over Bluetooth to print shelf talkers and receipts.",
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#000000"
+      },
+      "package": "com.ohanafy.field",
+      "versionCode": 1,
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.USE_BIOMETRIC",
+        "android.permission.BLUETOOTH_CONNECT",
+        "android.permission.BLUETOOTH_SCAN",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.CAMERA"
+      ]
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      "expo-local-authentication",
+      "expo-notifications",
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "deploymentTarget": "16.0"
+          },
+          "android": {
+            "minSdkVersion": 29,
+            "compileSdkVersion": 35,
+            "targetSdkVersion": 35
+          }
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      }
+    }
+  }
+}
