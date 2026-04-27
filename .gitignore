@@ -1,0 +1,49 @@
+# Expo
+.expo/
+.expo-shared/
+dist/
+web-build/
+
+# Native
+ios/
+android/
+*.apk
+*.ipa
+*.app
+
+# Node / Metro
+node_modules/
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+.pnpm-debug.log*
+metro-cache/
+
+# Build artifacts
+*.generated.*
+*.tsbuildinfo
+coverage/
+
+# Reference repos (cloned by harness; not project code)
+references/
+
+# Salesforce CLI local cache (auto-generated org tracking)
+.sf/
+.sfdx/
+
+# Secrets (NEVER commit)
+.env.local
+.env.*.local
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+*.swp
+*.swo
+
+# Daily logs (per-engineer, ephemeral)
+DAILY_LOG_*.md
+
+# Maestro local cache
+.maestro/
