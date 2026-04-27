@@ -19,8 +19,8 @@ contact Salesforce Customer Support.
 As of recent Salesforce releases, classic Connected App creation is disabled in many scratch / Developer Edition orgs. Salesforce wants new clients on **External Client Apps**.
 
 **Implications:**
-- The `Ohanafy_Field_Mobile.connectedApp-meta.xml` here is kept for the **AppExchange managed package** (where Connected Apps are still required for ISV-distributed apps) — this file moves to `packages/sfdx-package/force-app/main/default/connectedApps/` on Day 4.
-- The dev sandbox uses an **External Client App** created via the UI (see manual steps below) for OAuth testing during Days 1–3.
+- The `Ohanafy_Field_Mobile.connectedApp-meta.xml` here is kept for documentation — it represents the OAuth client we want for AppExchange distribution. Where it actually ships is a TBD (likely added to `OHFY-Data_Model` or a sibling Ohanafy package on the existing `ohfy` namespace, since Ohanafy Field doesn't introduce a new namespace).
+- The dev sandbox uses an **External Client App** created via the UI (see manual steps below) for OAuth testing.
 - The mobile OAuth flow is identical regardless of which kind of app — same endpoints, same PKCE, same scopes.
 
 ## Manual one-time setup (dev sandbox)

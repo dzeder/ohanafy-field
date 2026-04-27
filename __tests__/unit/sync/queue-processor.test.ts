@@ -87,7 +87,7 @@ describe('processQueueItem — CREATE_ORDER', () => {
     const client: SFClient = {
       createRecord: jest.fn(async (object, payload) => {
         calls.push({ object, payload });
-        return { id: object === 'ohfy_field__Order__c' ? 'SF_ORDER_001' : 'SF_LINE_001' };
+        return { id: 'SF_COMMITMENT_001' };
       }),
       updateRecord: jest.fn(),
       query: jest.fn(),
@@ -96,10 +96,29 @@ describe('processQueueItem — CREATE_ORDER', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await processQueueItem(queueItems.qi_1 as any, db as any, client);
 
-    expect(calls).toHaveLength(2);
-    expect(calls[0].object).toBe('ohfy_field__Order__c');
-    expect(calls[1].object).toBe('ohfy_field__OrderLine__c');
-    expect(orders.local_order_001.sfId).toBe('SF_ORDER_001');
+    // Single createRecord call: ohfy__Commitment__c with serialized lines in
+    // Offline_Items__c. The SF-side trigger materializes ohfy__Commitment_Item__c
+    // rows from that JSON — no per-line API call needed.
+    expect(calls).toHaveLength(1);
+    expect(calls[0].object).toBe('ohfy__Commitment__c');
+    expect(calls[0].payload).toMatchObject({
+      ohfy__Customer__c: 'a01',
+      ohfy__Involved_Sales_Rep__c: 'rep_1',
+      ohfy__Was_Created_Offline__c: true,
+    });
+    expect(typeof calls[0].payload.ohfy__Offline_Items__c).toBe('string');
+    const offlineItems = JSON.parse(
+      calls[0].payload.ohfy__Offline_Items__c as string
+    ) as Array<Record<string, unknown>>;
+    expect(offlineItems).toHaveLength(1);
+    expect(offlineItems[0]).toMatchObject({
+      itemSfId: 'p01',
+      quantity: 2,
+      unit: 'keg',
+      lineTotal: 356,
+    });
+
+    expect(orders.local_order_001.sfId).toBe('SF_COMMITMENT_001');
     expect(orders.local_order_001.status).toBe('synced');
     expect(orders.local_order_001.sfSyncStatus).toBe('synced');
     expect(queueItems.qi_1.status).toBe('done');
@@ -196,11 +215,17 @@ describe('processQueueItem — CREATE_VISIT', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await processQueueItem(queueItems.qi_v1 as any, db as any, client);
 
+    // Visits write to standard SF Task (the API name for non-event Activity).
+    // REX-UI uses the same pattern via ohfy__Activity_Goal__c → standard Activity.
     expect(client.createRecord).toHaveBeenCalledWith(
-      'ohfy_field__Visit__c',
+      'Task',
       expect.objectContaining({
-        ohfy_field__Account__c: 'a01',
-        ohfy_field__Note__c: 'Tap issue resolved.',
+        Subject: 'Visit',
+        Description: 'Tap issue resolved.',
+        WhatId: 'a01',
+        OwnerId: 'rep_1',
+        Type: 'Visit',
+        Status: 'Completed',
       })
     );
     expect(visits.local_visit_001.sfId).toBe('SF_VISIT_001');

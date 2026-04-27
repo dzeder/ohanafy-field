@@ -7,11 +7,35 @@ import { markDone, markFailed, markProcessing } from '@/db/repositories/sync-que
 
 import type { SFClient } from './sf-client';
 
+// Salesforce mapping notes
+// ────────────────────────
+// Ohanafy Field is a UI/UX layer over the existing OHFY-Data_Model managed
+// package (namespace `ohfy`). We do NOT define new custom objects — instead
+// we map our local DB to the existing schema:
+//
+//   our `orders` + `order_lines`  →  ohfy__Commitment__c with serialized
+//                                     line items in Offline_Items__c
+//                                     (a Salesforce trigger materializes
+//                                     ohfy__Commitment_Item__c rows)
+//   our `visits`                   →  standard SF Task (Subject="Visit",
+//                                     WhatId=accountSfId, Type="Visit",
+//                                     Description=note, Status="Completed")
+//
+// Reference: github.com/Ohanafy/OHFY-Data_Model →
+//   force-app/main/default/objects/Commitment__c
+//
+// The Commitment__c.Offline_Items__c field is explicitly designed for this:
+// "The system populates this long text field with serialized commitment
+//  item data captured while the mobile application was offline. Processed
+//  during the next synchronization cycle to create individual Commitment
+//  Item records."
+
 interface CreateOrderPayload {
   localId: string;
   accountSfId: string;
   repId: string;
   totalAmount: number;
+  notes?: string;
   lines: Array<{
     productSfId: string;
     productName: string;
@@ -60,32 +84,31 @@ async function processCreateOrder(
   client: SFClient
 ): Promise<void> {
   const payload = JSON.parse(item.payloadJson) as CreateOrderPayload;
-  const { id: sfOrderId } = await client.createRecord('ohfy_field__Order__c', {
-    ohfy_field__Account__c: payload.accountSfId,
-    ohfy_field__Rep__c: payload.repId,
-    ohfy_field__Total_Amount__c: payload.totalAmount,
-    ohfy_field__Status__c: 'Submitted',
-    ohfy_field__Created_Offline__c: true,
+
+  // Serialize line items for Offline_Items__c — the SF-side trigger materializes
+  // these into ohfy__Commitment_Item__c records on creation.
+  const offlineItems = payload.lines.map((line) => ({
+    itemSfId: line.productSfId,
+    itemName: line.productName,
+    quantity: line.quantity,
+    unit: line.unit,
+    unitPrice: line.unitPrice,
+    lineTotal: line.lineTotal,
+  }));
+
+  const { id: sfCommitmentId } = await client.createRecord('ohfy__Commitment__c', {
+    ohfy__Customer__c: payload.accountSfId,
+    ohfy__Involved_Sales_Rep__c: payload.repId,
+    ohfy__Date__c: new Date().toISOString().slice(0, 10), // YYYY-MM-DD for Date__c
+    ohfy__Notes__c: payload.notes ?? null,
+    ohfy__Was_Created_Offline__c: true,
+    ohfy__Offline_Items__c: JSON.stringify(offlineItems),
   });
 
-  // Create line items
-  for (const line of payload.lines) {
-    await client.createRecord('ohfy_field__OrderLine__c', {
-      ohfy_field__Order__c: sfOrderId,
-      ohfy_field__Product_Sf_Id__c: line.productSfId,
-      ohfy_field__Product_Name__c: line.productName,
-      ohfy_field__Quantity__c: line.quantity,
-      ohfy_field__Unit__c: line.unit,
-      ohfy_field__Unit_Price__c: line.unitPrice,
-      ohfy_field__Line_Total__c: line.lineTotal,
-    });
-  }
-
-  // Update local order with the SF id and synced status
   await db.write(async () => {
     const order = await db.get<Order>('orders').find(payload.localId);
     await order.update((rec) => {
-      rec.sfId = sfOrderId;
+      rec.sfId = sfCommitmentId;
       rec.status = 'synced';
       rec.sfSyncStatus = 'synced';
       rec.updatedAt = new Date();
@@ -99,17 +122,23 @@ async function processCreateVisit(
   client: SFClient
 ): Promise<void> {
   const payload = JSON.parse(item.payloadJson) as CreateVisitPayload;
-  const { id: sfVisitId } = await client.createRecord('ohfy_field__Visit__c', {
-    ohfy_field__Account__c: payload.accountSfId,
-    ohfy_field__Rep__c: payload.repId,
-    ohfy_field__Note__c: payload.note,
-    ohfy_field__Visit_Date__c: new Date().toISOString(),
+
+  // Standard SF Task (the API name for non-event Activity rows). REX-UI
+  // uses the same pattern via ohfy__Activity_Goal__c → standard Activity.
+  const { id: sfTaskId } = await client.createRecord('Task', {
+    Subject: 'Visit',
+    Description: payload.note,
+    WhatId: payload.accountSfId,
+    OwnerId: payload.repId,
+    Type: 'Visit',
+    Status: 'Completed',
+    ActivityDate: new Date().toISOString().slice(0, 10),
   });
 
   await db.write(async () => {
     const visit = await db.get<Visit>('visits').find(payload.localId);
     await visit.update((rec) => {
-      rec.sfId = sfVisitId;
+      rec.sfId = sfTaskId;
       rec.sfSyncStatus = 'synced';
     });
   });

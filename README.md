@@ -127,7 +127,6 @@ Maestro E2E                11 flows defined; require an iOS sim or emulator to r
 | `OHANAFY-FIELD-HARNESS.md` | Reference for harness re-runs |
 | `HARNESS-VERIFICATION.md` | Session 0 §2 checklist results |
 | `docs/customer/admin-onboarding.md` | Salesforce-admin install + configure walkthrough |
-| `packages/sfdx-package/README.md` | Managed-package deploy instructions |
 | `maestro/README.md` | E2E test mode hooks + flow catalog |
 | `scripts/sf-bootstrap/README.md` | One-time External Client App bootstrap |
 
