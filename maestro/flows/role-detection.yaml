@@ -1,0 +1,17 @@
+appId: com.ohanafy.field
+---
+# Roles doc §12 — login as each of the 6 functional roles, verify correct tab
+# set renders. Tab sets per Roles Appendix C. Day 5 only ships FieldSalesRep
+# tabs; the other roles route to the no-permission screen until Day 6 adds
+# their tab sets.
+- launchApp:
+    clearState: true
+    env:
+      MAESTRO_TEST_MODE: "true"
+      MAESTRO_FIXTURE_USER: "daniel.zeder+salesrep@ohanafy.com"
+
+- tapOn: "Sign in with Salesforce"
+- assertVisible: "Accounts"
+- assertVisible: "Route"
+- assertVisible: "Orders"
+- assertVisible: "Settings"

@@ -1,0 +1,29 @@
+appId: com.ohanafy.field
+---
+# Walks the 5-step onboarding wizard end-to-end.
+- launchApp:
+    clearState: true
+    env:
+      MAESTRO_TEST_MODE: "true"
+
+# Step 1: Welcome
+- assertVisible: "Welcome to Ohanafy Field"
+- tapOn: "Get Started"
+
+# Step 2: Territory
+- assertVisible: "Your territory"
+- assertVisible: "accounts loaded"
+- tapOn: "Continue"
+
+# Step 3: Pair printer (skip path)
+- assertVisible: "Pair your label printer"
+- tapOn: "Skip for now"
+
+# Step 4: First visit tour
+- assertVisible: "Try your first visit"
+- tapOn: "I'm ready"
+
+# Step 5: Done — completes and routes to tabs
+- assertVisible: "You're all set"
+- tapOn: "Go to my accounts"
+- assertVisible: "Accounts"

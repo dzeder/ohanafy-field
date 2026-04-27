@@ -1,0 +1,29 @@
+appId: com.ohanafy.field
+---
+# Full happy path: open an account, see insight, place a small order, confirm.
+- launchApp:
+    clearState: true
+    env:
+      MAESTRO_TEST_MODE: "true"
+      MAESTRO_SKIP_ONBOARDING: "true"
+
+- tapOn: "Sign in with Salesforce"
+- assertVisible: "Accounts"
+
+- tapOn:
+    id: "account-card-a01_the_rail"
+- assertVisible: "Pre-call insight"
+
+- tapOn: "New Order"
+- tapOn: "+ Add Item"
+- tapOn:
+    id: "product-p01_yh_pale_ale_hb"
+- tapOn: "Done"
+- assertVisible: "Yellowhammer Pale Ale"
+
+- tapOn: "Review"
+- assertVisible: "Confirm Order"
+- tapOn: "Place Order"
+
+- assertVisible: "Accounts"
+- assertVisible: "pending sync"

@@ -1,0 +1,4 @@
+appId: com.ohanafy.field
+---
+- setAirplaneMode:
+    enabled: false

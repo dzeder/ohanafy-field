@@ -1,0 +1,23 @@
+appId: com.ohanafy.field
+---
+# Voice command path: dictate "add 2 kegs pale ale" → Accept → line added.
+# Maestro can't actually emit microphone audio; this flow asserts the UI
+# affordances and uses a debug button (test mode only) to inject a transcript.
+- launchApp:
+    clearState: true
+    env:
+      MAESTRO_TEST_MODE: "true"
+
+- tapOn: "Sign in with Salesforce"
+- tapOn:
+    id: "account-card-a01_the_rail"
+- tapOn: "New Order"
+
+- tapOn:
+    id: "voice-button"
+# Test-mode hook injects a fixed transcript and walks through the agent.
+- tapOn:
+    id: "debug-inject-transcript"
+- assertVisible: "AI heard"
+- tapOn: "Accept"
+- assertVisible: "Yellowhammer Pale Ale"

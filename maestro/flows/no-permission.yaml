@@ -1,0 +1,14 @@
+appId: com.ohanafy.field
+---
+# Login with a user who has zero ohfy_field__ Permission Sets assigned.
+# Verify the no-permission screen renders with the right messaging.
+- launchApp:
+    clearState: true
+    env:
+      MAESTRO_TEST_MODE: "true"
+      MAESTRO_FIXTURE_USER: "unknown@example.com"
+
+- tapOn: "Sign in with Salesforce"
+
+- assertVisible: "No access yet"
+- assertVisible: "ohfy_field__"

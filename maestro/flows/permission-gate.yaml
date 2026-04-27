@@ -1,0 +1,17 @@
+appId: com.ohanafy.field
+---
+# Login as Sales Rep; verify manager-only features are absent. The
+# PermissionGate component should hide them rather than render-and-disable.
+- launchApp:
+    clearState: true
+    env:
+      MAESTRO_TEST_MODE: "true"
+      MAESTRO_FIXTURE_USER: "daniel.zeder+salesrep@ohanafy.com"
+
+- tapOn: "Sign in with Salesforce"
+- tapOn: "Settings"
+
+# Sales Rep has no admin console permission — RoleSwitcher hides itself
+# when the user has only one role.
+- assertNotVisible: "Role"
+- assertNotVisible: "App Admin"

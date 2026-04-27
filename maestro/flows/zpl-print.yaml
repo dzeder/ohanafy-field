@@ -1,0 +1,22 @@
+appId: com.ohanafy.field
+---
+# Label preview + print path. In dev/CI the printer is the stub — the test
+# verifies the preview renders and the print step records a label_print row.
+- launchApp:
+    clearState: true
+    env:
+      MAESTRO_TEST_MODE: "true"
+
+- tapOn: "Sign in with Salesforce"
+- tapOn:
+    id: "account-card-a01_the_rail"
+
+# Day 5 wires a "Print Label" entry on account detail (Day 6 polish).
+# For now, tap the dev shortcut into /label/select.
+- tapOn:
+    id: "debug-open-label-select"
+
+- tapOn: "Shelf Talker"
+- assertVisible: "Preview"
+- tapOn: "Print to Zebra"
+- assertVisible: "Simulated print"

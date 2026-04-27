@@ -4,6 +4,7 @@ import { useCallback, useState } from 'react';
 import { Pressable, Text, TextInput, View } from 'react-native';
 
 import { AccountCard } from '@/components/account/AccountCard';
+import { CoachMark } from '@/components/onboarding/CoachMark';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
 import { LoadingSkeleton } from '@/components/shared/LoadingSkeleton';
@@ -37,6 +38,12 @@ export default function Accounts(): React.ReactNode {
           <Text className="mb-3 text-2xl font-bold text-ohanafy-ink dark:text-ohanafy-dark-text">
             Accounts
           </Text>
+          <CoachMark
+            markId="accounts-list"
+            title="Your accounts are here"
+            body="Tap any account to see AI insights and start an order. Accounts that need attention are flagged."
+          />
+
           <TextInput
             accessibilityLabel="Search accounts"
             accessibilityHint="Filters the account list as you type"

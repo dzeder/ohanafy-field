@@ -4,6 +4,7 @@ import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-nati
 
 import { useAuthStore } from '@/auth/store';
 import { InsightBanner } from '@/components/ai/InsightBanner';
+import { CoachMark } from '@/components/onboarding/CoachMark';
 import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
 import { database } from '@/db';
 import type { Account } from '@/db/models/Account';
@@ -95,6 +96,11 @@ export default function AccountDetail(): React.ReactNode {
         </Text>
 
         <View className="mt-6">
+          <CoachMark
+            markId="account-detail-insight"
+            title="Pre-call briefing"
+            body="The AI scanned this account's history and surfaced the most important thing to know. Tap thumbs-up or thumbs-down to teach it your preferences."
+          />
           <InsightBanner account={account} />
         </View>
 

@@ -1,0 +1,24 @@
+appId: com.ohanafy.field
+---
+# Multi-role user (admin) — switch from FieldSalesRep to Driver and back.
+# Verify the active-role pill changes and downstream PermissionGates re-evaluate.
+- launchApp:
+    clearState: true
+    env:
+      MAESTRO_TEST_MODE: "true"
+      MAESTRO_FIXTURE_USER: "daniel.zeder@ohanafy.com"
+
+- tapOn: "Sign in with Salesforce"
+- tapOn: "Settings"
+
+# Default primary role is AppAdmin
+- assertVisible: "Role"
+- assertVisible: "App Admin"
+
+# Switch to FieldSalesRep
+- tapOn: "Field Sales Rep"
+- assertVisible: "Field Sales Rep"
+
+# Switch to Driver — Day 6 will add a tab set; for now, no-permission screen
+- tapOn: "Driver"
+- assertVisible: "No access yet"
