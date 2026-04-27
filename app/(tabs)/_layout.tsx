@@ -1,11 +1,24 @@
 import { Tabs } from 'expo-router';
+import { useMemo } from 'react';
 
+import {
+  ALL_TAB_NAMES,
+  tabsForRole,
+  tabTitle,
+  type TabName,
+} from '@/navigation/role-nav-config';
 import { usePermissionStore } from '@/permissions/store';
 
 export default function TabsLayout(): React.ReactNode {
-  // Day 1 only ships the Field Sales Rep tab set. Other roles get no-permission
-  // screen until Day 2 fills in their respective tab sets (Roles Appendix C).
-  const canSell = usePermissionStore((s) => s.hasPermission('view_accounts'));
+  // Active role drives which tabs are visible. AppAdmin has no functional tab
+  // set of its own — they switch into a functional role via Settings to use
+  // the app's mobile features (admin console is on Lightning).
+  const activeRole = usePermissionStore((s) => s.activeRole);
+
+  const visibleTabs = useMemo(() => {
+    const allowed = tabsForRole(activeRole);
+    return new Set<TabName>(allowed);
+  }, [activeRole]);
 
   return (
     <Tabs
@@ -16,37 +29,23 @@ export default function TabsLayout(): React.ReactNode {
         tabBarStyle: { backgroundColor: '#FFFFFF', borderTopColor: '#F4F2F0' },
       }}
     >
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Accounts',
-          tabBarAccessibilityLabel: 'Accounts',
-          href: canSell ? undefined : null,
-        }}
-      />
-      <Tabs.Screen
-        name="route"
-        options={{
-          title: 'Route',
-          tabBarAccessibilityLabel: 'Route',
-          href: canSell ? undefined : null,
-        }}
-      />
-      <Tabs.Screen
-        name="orders"
-        options={{
-          title: 'Orders',
-          tabBarAccessibilityLabel: 'Orders',
-          href: canSell ? undefined : null,
-        }}
-      />
-      <Tabs.Screen
-        name="settings"
-        options={{
-          title: 'Settings',
-          tabBarAccessibilityLabel: 'Settings',
-        }}
-      />
+      {ALL_TAB_NAMES.map((name: TabName) => {
+        const visible = visibleTabs.has(name);
+        const customTitle = tabTitle(activeRole, name);
+        return (
+          <Tabs.Screen
+            key={name}
+            name={name}
+            options={{
+              // href:null hides the tab from the bar AND blocks deep-linking;
+              // exactly the Bible §15 contract for role-scoped nav.
+              href: visible ? undefined : null,
+              title: customTitle ?? name,
+              tabBarAccessibilityLabel: customTitle ?? name,
+            }}
+          />
+        );
+      })}
     </Tabs>
   );
 }
