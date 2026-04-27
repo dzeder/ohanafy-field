@@ -1,0 +1,17 @@
+appId: com.ohanafy.field
+---
+# Admin user — verify the Admin Console option appears in Settings.
+# The Admin Console Lightning app itself is a Salesforce-side screen; this
+# flow just verifies the launcher is gated correctly.
+- launchApp:
+    clearState: true
+    env:
+      MAESTRO_TEST_MODE: "true"
+      MAESTRO_FIXTURE_USER: "daniel.zeder@ohanafy.com"
+
+- tapOn: "Sign in with Salesforce"
+- tapOn: "Settings"
+
+# Admin role gives manage_admin_console permission. Day 6 adds the launcher
+# button; for Day 5 we just verify the role switcher includes "App Admin".
+- assertVisible: "App Admin"

@@ -1,0 +1,35 @@
+appId: com.ohanafy.field
+---
+# Place an order with the network OFF, restore network, verify it syncs.
+- launchApp:
+    clearState: true
+    env:
+      MAESTRO_TEST_MODE: "true"
+
+- tapOn: "Sign in with Salesforce"
+
+# Disable network — Maestro on iOS uses setAirplaneMode; Android equivalent
+# below for cross-platform support
+- runFlow:
+    file: ../helpers/go-offline.yaml
+
+- tapOn:
+    id: "account-card-a01_the_rail"
+- tapOn: "New Order"
+- tapOn: "+ Add Item"
+- tapOn:
+    id: "product-p01_yh_pale_ale_hb"
+- tapOn: "Done"
+- tapOn: "Review"
+- tapOn: "Place Order"
+
+- assertVisible: "Offline"
+- assertVisible: "pending sync"
+
+- runFlow:
+    file: ../helpers/go-online.yaml
+
+# Sync engine flushes on NetInfo reconnect — wait up to 10s for synced state
+- waitForAnimationToEnd:
+    timeout: 10000
+- assertNotVisible: "pending sync"

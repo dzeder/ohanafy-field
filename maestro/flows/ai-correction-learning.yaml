@@ -1,0 +1,32 @@
+appId: com.ohanafy.field
+---
+# 3 voice corrections → run learning agent → verify a memory was created.
+- launchApp:
+    clearState: true
+    env:
+      MAESTRO_TEST_MODE: "true"
+
+- tapOn: "Sign in with Salesforce"
+- tapOn:
+    id: "account-card-a01_the_rail"
+- tapOn: "New Order"
+
+# Inject 3 fake voice corrections via the test-mode hook
+- repeat:
+    times: 3
+    commands:
+      - tapOn:
+          id: "voice-button"
+      - tapOn:
+          id: "debug-inject-transcript"
+      - tapOn: "Edit"
+      - tapOn:
+          id: "debug-confirm-edit"
+
+# Open Settings → AI Memories → Run learning now
+- tapOn: "Settings"
+- tapOn: "AI Memories"
+- tapOn: "Run learning now"
+
+# Verify at least one memory appears
+- assertVisible: "PRODUCT_NICKNAME"

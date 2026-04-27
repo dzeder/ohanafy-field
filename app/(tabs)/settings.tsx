@@ -50,6 +50,21 @@ export default function Settings(): React.ReactNode {
             View and manage what the AI has learned from your corrections.
           </Text>
         </Pressable>
+
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="User guide"
+          accessibilityHint="Opens the searchable offline user guide"
+          onPress={() => router.push('/guide')}
+          className="mt-3 rounded-2xl bg-ohanafy-cork p-4 active:opacity-80 dark:bg-ohanafy-dark-elevated"
+        >
+          <Text className="text-base font-bold text-ohanafy-ink dark:text-ohanafy-dark-text">
+            User Guide
+          </Text>
+          <Text className="mt-1 text-xs text-ohanafy-muted dark:text-ohanafy-dark-muted">
+            7 sections, available offline. Search or browse.
+          </Text>
+        </Pressable>
       </ScrollView>
     </ErrorBoundary>
   );

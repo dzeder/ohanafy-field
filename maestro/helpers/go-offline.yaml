@@ -1,0 +1,6 @@
+appId: com.ohanafy.field
+---
+# Cross-platform helper: turn off the device network. Maestro's setAirplaneMode
+# works on iOS simulators and Android emulators in test mode.
+- setAirplaneMode:
+    enabled: true
