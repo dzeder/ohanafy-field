@@ -48,6 +48,7 @@
       "expo-secure-store",
       "expo-local-authentication",
       "expo-notifications",
+      "./plugins/watermelondb-podfile",
       [
         "expo-build-properties",
         {
