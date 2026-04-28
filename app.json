@@ -49,6 +49,7 @@
       "expo-local-authentication",
       "expo-notifications",
       "./plugins/watermelondb-podfile",
+      "./plugins/android-manifest-fix",
       [
         "expo-build-properties",
         {
