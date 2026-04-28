@@ -39,7 +39,8 @@
         "android.permission.BLUETOOTH_CONNECT",
         "android.permission.BLUETOOTH_SCAN",
         "android.permission.ACCESS_FINE_LOCATION",
-        "android.permission.CAMERA"
+        "android.permission.CAMERA",
+        "android.permission.USE_FINGERPRINT"
       ]
     },
     "plugins": [
@@ -67,7 +68,11 @@
     "extra": {
       "router": {
         "origin": false
+      },
+      "eas": {
+        "projectId": "fdab0225-3fdb-41d8-9279-6289615079d6"
       }
-    }
+    },
+    "owner": "dzeder14-ohfy"
   }
 }
