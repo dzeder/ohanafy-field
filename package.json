@@ -2,6 +2,9 @@
   "name": "ohanafy-field",
   "version": "1.0.0",
   "main": "expo-router/entry",
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "scripts": {
     "start": "expo start",
     "ios": "expo start --ios",
