@@ -58,7 +58,12 @@
           "android": {
             "minSdkVersion": 29,
             "compileSdkVersion": 35,
-            "targetSdkVersion": 35
+            "targetSdkVersion": 35,
+            "kotlinVersion": "2.0.21",
+            "gradleProperties": {
+              "org.gradle.jvmargs": "-Xmx4096m -XX:MaxMetaspaceSize=1024m",
+              "android.useAndroidX": "true"
+            }
           }
         }
       ]
