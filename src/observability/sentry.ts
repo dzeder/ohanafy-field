@@ -1,11 +1,12 @@
 import * as Sentry from '@sentry/react-native';
 
-const dsn = process.env.SENTRY_DSN;
+const dsn =
+  process.env.EXPO_PUBLIC_SENTRY_DSN ?? process.env.SENTRY_DSN;
 
 export function initSentry(): void {
   if (!dsn) {
     // eslint-disable-next-line no-console
-    console.warn('[sentry] SENTRY_DSN not set — error tracking disabled');
+    console.warn('[sentry] EXPO_PUBLIC_SENTRY_DSN not set — error tracking disabled');
     return;
   }
   Sentry.init({

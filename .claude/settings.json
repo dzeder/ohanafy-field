@@ -5,9 +5,46 @@
     "enabled": ["bash", "view", "str_replace", "create_file"]
   },
   "hooks": {
-    "postCommit":  ".claude/hooks/post-commit-log.sh",
-    "prePush":     ".claude/hooks/pre-push-quality-gate.sh",
-    "preMerge":    ".claude/hooks/pre-merge-checklist.sh"
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash scripts/link-env.sh",
+            "timeout": 10,
+            "statusMessage": "Linking .env.local"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/post-commit-log.sh",
+            "if": "Bash(git commit *)",
+            "timeout": 10,
+            "statusMessage": "Logging commit to DAILY_LOG"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/pre-push-quality-gate.sh || exit 2",
+            "if": "Bash(git push *)",
+            "timeout": 600,
+            "statusMessage": "Quality gate: tsc + eslint + jest"
+          }
+        ]
+      }
+    ]
   },
   "contextFiles": [
     "CLAUDE.md",
