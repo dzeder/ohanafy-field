@@ -50,6 +50,7 @@
       "expo-notifications",
       "./plugins/watermelondb-podfile",
       "./plugins/android-manifest-fix",
+      "./plugins/android-exclude-support-libs",
       [
         "expo-build-properties",
         {
